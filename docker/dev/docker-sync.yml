@@ -1,0 +1,18 @@
+version: "2"
+options:
+  verbose: true
+
+syncs:
+  sagemaker-mxnet-container-native-osx-sync:
+    src: '${PWD}/../../src/sagemaker_mxnet_container'
+    # one way replication
+    sync_args: '-force /host_sync'
+    sync_excludes: ['.git']
+    sync_strategy: 'native_osx'
+
+  sagemaker-containers-sdk-native-osx-sync:
+    src: '${PWD}/../../../sagemaker-containers/src/sagemaker_containers'
+    # one way replication
+    sync_args: '-force /host_sync'
+    sync_excludes: ['.git']
+    sync_strategy: 'native_osx'

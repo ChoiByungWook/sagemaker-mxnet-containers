@@ -1,0 +1,11 @@
+version: '2'
+services:
+  sagemaker-mxnet-container:
+    build:
+      context: '${PWD}/../${LATEST_MXNET_VERSION}/final'
+      dockerfile: 'Dockerfile.cpu'
+      args:
+        framework_installable: mxnet_mkl-${LATEST_MXNET_VERSION}.post0-py2.py3-none-manylinux1_x86_64.whl
+        py_version: ${PYTHON_VERSION}
+    image: 520713654638.dkr.ecr.us-west-2.amazonaws.com/sagemaker-mxnet:${LATEST_MXNET_VERSION}-cpu-py${PYTHON_VERSION}
+    command: bash

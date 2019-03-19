@@ -1,0 +1,26 @@
+version: '2'
+services:
+  # development container that will pick up the code syncs
+  sagemaker-mxnet-container-dev:
+    image: 520713654638.dkr.ecr.us-west-2.amazonaws.com/sagemaker-mxnet:1.4.0-cpu-py3
+    volumes:
+      - sagemaker-mxnet-container-native-osx-sync:/usr/local/lib/python3.6/site-packages/sagemaker_mxnet_container:nocopy
+      - sagemaker-containers-sdk-native-osx-sync:/usr/local/lib/python3.6/site-packages/sagemaker_containers:nocopy
+
+      - ${PWD}/../../test/resources/default_handlers/model:/opt/ml/model/
+      - ${PWD}/../../test/resources/mnist/train:/opt/ml/input/data/train
+      - ${PWD}/../../test/resources/mnist/mnist.py:/opt/ml/code/mnist.py
+    environment:
+      - SAGEMAKER_PROGRAM=mnist.py
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
+    command: bash
+
+# the containers that handle syncing our src code
+volumes:
+  sagemaker-mxnet-container-native-osx-sync:
+    external: true
+  sagemaker-containers-sdk-native-osx-sync:
+    external: true
