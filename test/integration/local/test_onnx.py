@@ -14,11 +14,10 @@ from __future__ import absolute_import
 
 import os
 
-import numpy
-from sagemaker.mxnet import MXNet, MXNetModel
+from sagemaker.mxnet import MXNet
 
 import local_mode_utils
-from test.integration import NUM_MODEL_SERVER_WORKERS, RESOURCE_PATH
+from test.integration import RESOURCE_PATH
 
 ONNX_PATH = os.path.join(RESOURCE_PATH, 'onnx')
 SCRIPT_PATH = os.path.join(ONNX_PATH, 'code', 'onnx_export_import.py')
@@ -35,22 +34,3 @@ def test_onnx_export(docker_image, sagemaker_local_session, local_instance_type,
     mx.fit({'train': input_path})
 
     local_mode_utils.assert_output_files_exist(str(tmpdir), 'model', ['model.onnx'])
-
-
-def test_onnx_import(docker_image, sagemaker_local_session, local_instance_type):
-    model_path = 'file://{}'.format(os.path.join(ONNX_PATH, 'onnx_model'))
-    m = MXNetModel(model_path, 'SageMakerRole', SCRIPT_PATH, image=docker_image,
-                   sagemaker_session=sagemaker_local_session,
-                   model_server_workers=NUM_MODEL_SERVER_WORKERS)
-
-    input = numpy.zeros(shape=(1, 1, 28, 28))
-
-    with local_mode_utils.lock():
-        try:
-            predictor = m.deploy(1, local_instance_type)
-            output = predictor.predict(input)
-        finally:
-            sagemaker_local_session.delete_endpoint(m.endpoint_name)
-
-    # Check that there is a probability for each possible class in the prediction
-    assert len(output[0]) == 10

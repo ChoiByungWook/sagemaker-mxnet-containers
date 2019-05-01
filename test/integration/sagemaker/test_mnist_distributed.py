@@ -14,12 +14,11 @@ from __future__ import absolute_import
 
 import os
 
-import numpy as np
 from sagemaker.mxnet.estimator import MXNet
 from sagemaker.utils import sagemaker_timestamp
 
 from test.integration import RESOURCE_PATH
-from timeout import timeout, timeout_and_delete_endpoint
+from timeout import timeout
 
 
 def test_mxnet_distributed(sagemaker_session, ecr_image, instance_type, framework_version):
@@ -40,9 +39,3 @@ def test_mxnet_distributed(sagemaker_session, ecr_image, instance_type, framewor
                                                       key_prefix=prefix + '/test')
 
         mx.fit({'train': train_input, 'test': test_input})
-
-    with timeout_and_delete_endpoint(estimator=mx, minutes=30):
-        predictor = mx.deploy(initial_instance_count=1, instance_type=instance_type)
-
-        data = np.zeros(shape=(1, 1, 28, 28))
-        predictor.predict(data)
