@@ -17,9 +17,9 @@ import logging
 import os
 
 import mxnet as mx
-from sagemaker_containers.beta.framework import (content_types, encoders, env, errors,
-                                                 logging as container_logging,
-                                                 modules, transformer, worker)
+
+from sagemaker_containers.beta.framework import (content_types, encoders, errors,
+                                                 transformer)
 
 logger = logging.getLogger(__name__)
 
@@ -189,14 +189,12 @@ class MXNetTransformer(transformer.Transformer):
                 accept type is used.
         """
         if accept in self.VALID_CONTENT_TYPES:
-            return worker.Response(response=encoders.encode(prediction.asnumpy().tolist(), accept),
-                                   mimetype=accept)
+            return encoders.encode(prediction.asnumpy().tolist())
         else:
             raise errors.UnsupportedFormatError(accept)
 
 
 class ModuleTransformer(MXNetTransformer):
-
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.CSV, content_types.NPY)
 
     def default_input_fn(self, input_data, content_type):
@@ -320,22 +318,3 @@ def _user_module_transformer(user_module, model_dir):
 
     return transformer_cls(model=model, model_fn=model_fn, input_fn=input_fn,
                            predict_fn=predict_fn, output_fn=output_fn)
-
-
-app = None
-
-
-def main(environ, start_response):
-    global app
-    if app is None:
-        serving_env = env.ServingEnv()
-        container_logging.configure_logger(serving_env.log_level)
-        _update_mxnet_env_vars()
-
-        user_module = modules.import_module(serving_env.module_dir, serving_env.module_name)
-        user_transformer = _user_module_transformer(user_module, serving_env.model_dir)
-
-        app = worker.Worker(transform_fn=user_transformer.transform,
-                            module_name=serving_env.module_name)
-
-    return app(environ, start_response)
