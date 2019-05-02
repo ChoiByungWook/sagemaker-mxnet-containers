@@ -14,11 +14,10 @@ from __future__ import absolute_import
 
 import os
 
+import local_mode_utils
 import pytest
 import requests
 from sagemaker.mxnet.model import MXNetModel
-
-import local_mode_utils
 from test.integration import NUM_MODEL_SERVER_WORKERS, RESOURCE_PATH
 
 

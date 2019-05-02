@@ -18,7 +18,6 @@ import numpy as np
 import pytest
 from sagemaker.mxnet import MXNetModel
 from sagemaker.utils import sagemaker_timestamp
-
 from test.integration import RESOURCE_PATH, EI_SUPPORTED_REGIONS
 from timeout import timeout_and_delete_endpoint_by_name
 
